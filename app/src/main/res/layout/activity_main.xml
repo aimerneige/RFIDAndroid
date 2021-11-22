@@ -13,13 +13,12 @@
         android:stateListAnimator="@null">
 
         <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/main_toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/topAppBar"
             app:menu="@menu/main_toolbar"
             app:title="@string/app_name" />
 
     </com.google.android.material.appbar.AppBarLayout>
-
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

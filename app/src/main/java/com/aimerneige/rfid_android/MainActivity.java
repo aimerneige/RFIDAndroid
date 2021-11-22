@@ -14,6 +14,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public class MainActivity extends BaseActivity implements ServiceConnection, SerialListener {
@@ -163,7 +164,8 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
     }
 
     private void initView() {
-
+        MaterialToolbar toolbar = findViewById(R.id.main_toolbar);
+        setSupportActionBar(toolbar);
     }
 
     private void applyClickAction() {
