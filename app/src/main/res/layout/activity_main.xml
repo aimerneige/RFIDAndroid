@@ -16,9 +16,124 @@
             android:id="@+id/main_toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:menu="@menu/main_toolbar"
+            app:menu="@menu/main_toolbar_menu"
             app:title="@string/app_name" />
 
     </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:id="@+id/main_not_connected"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_red_solid"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingLeft="0dp"
+                android:paddingTop="18dp"
+                android:paddingRight="0dp"
+                android:paddingBottom="18dp">
+
+                <ImageView
+                    android:id="@+id/main_status_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_check_circle" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/main_status_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:text="蓝牙未连接"
+                        android:textColor="@color/whiteTextColor"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/main_status_detail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="2dp"
+                        android:text="无法建立与门锁的通信，请进入设置检查蓝牙连接"
+                        android:textColor="@color/whiteTextColor"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/main_btn_open_door"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_trans_border_ripple"
+                android:clickable="true"
+                android:focusable="true"
+                android:orientation="horizontal"
+                android:paddingLeft="0dp"
+                android:paddingTop="18dp"
+                android:paddingRight="0dp"
+                android:paddingBottom="18dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_lock_open"
+                    app:tint="@color/colorPrimary" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:text="点击开门"
+                        android:textColor="@color/firstTextColor"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/mainTextViewVersion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="2dp"
+                        android:text="请确保蓝牙已配对"
+                        android:textColor="@color/secondTextColor"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

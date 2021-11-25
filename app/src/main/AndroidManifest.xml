@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.aimerneige.rfid_android">
-
     <!-- Permission For Bluetooth -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
-    <!-- Use ACCESS_FINE_LOCATION instead if targets Android 9 or higher -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" /> <!-- Use ACCESS_FINE_LOCATION instead if targets Android 9 or higher -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
@@ -18,6 +16,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.RFIDAndroid">
+        <activity
+            android:name=".AboutActivity"
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">

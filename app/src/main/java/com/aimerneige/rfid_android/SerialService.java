@@ -15,36 +15,10 @@ import java.util.Queue;
 
 public class SerialService extends Service implements SerialListener {
 
-    public class SerialBinder extends Binder {
-        public SerialService getService() {
-            return SerialService.this;
-        }
-    }
-
-    private enum QueueType {
-        Connect,
-        ConnectError,
-        Read,
-        IoError
-    }
-
-    private static class QueueItem {
-        QueueType type;
-        byte[] data;
-        Exception e;
-
-        QueueItem(QueueType type, byte[] data, Exception e) {
-            this.type = type;
-            this.data = data;
-            this.e = e;
-        }
-    }
-
     private final Handler mainLooper;
     private final IBinder binder;
     private final Queue<QueueItem> queue1;
     private final Queue<QueueItem> queue2;
-
     private SerialSocket socket;
     private SerialListener listener;
     private boolean connected;
@@ -209,5 +183,30 @@ public class SerialService extends Service implements SerialListener {
         }
         queue1.clear();
         queue2.clear();
+    }
+
+    private enum QueueType {
+        Connect,
+        ConnectError,
+        Read,
+        IoError
+    }
+
+    private static class QueueItem {
+        QueueType type;
+        byte[] data;
+        Exception e;
+
+        QueueItem(QueueType type, byte[] data, Exception e) {
+            this.type = type;
+            this.data = data;
+            this.e = e;
+        }
+    }
+
+    public class SerialBinder extends Binder {
+        public SerialService getService() {
+            return SerialService.this;
+        }
     }
 }

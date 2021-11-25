@@ -4,55 +4,35 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public class MainActivity extends BaseActivity implements ServiceConnection, SerialListener {
 
-    private enum Connected {
-        False,
-        Pending,
-        True
-    }
-
     private final String LOG_TAG = "MainActivity";
-
     private String deviceAddress; // MAC address
     private SerialService serialService;
-
     private Connected connected = Connected.False;
-
-//    private MaterialAlertDialogBuilder noBluetoothSupportDialog;
-//    private MaterialAlertDialogBuilder bluetoothOffDialog;
-//    private MaterialAlertDialogBuilder noBluetoothExitDialog;
-
-    ActivityResultLauncher<Intent> openBluetoothActivityResult = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == RESULT_CANCELED) {
-                    requestOpenBluetooth();
-                }
-            });
+    private LinearLayout btnOpenDoor;
+    private LinearLayout bluetoothNotConnectedWarning;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initDialogs();
         initServices();
         initView();
-        applyClickAction();
-        requestOpenBluetooth();
     }
 
     @Override
@@ -92,6 +72,7 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
         Log.d(LOG_TAG, msg);
         Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
         connected = Connected.True;
+        bluetoothNotConnectedWarning.setVisibility(View.GONE);
     }
 
     @Override
@@ -113,52 +94,32 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
         disconnect();
     }
 
-    private void initDialogs() {
-//        noBluetoothSupportDialog = new MaterialAlertDialogBuilder(mContext)
-//                .setCancelable(false)
-//                .setTitle(R.string.no_bluetooth_support_dialog_title)
-//                .setMessage(R.string.no_bluetooth_support_dialog_message)
-//                .setPositiveButton(R.string.no_bluetooth_support_dialog_ok, (dialog, which) -> finish());
-//        bluetoothOffDialog = new MaterialAlertDialogBuilder(mContext)
-//                .setCancelable(false)
-//                .setTitle(R.string.bluetooth_off_dialog_title)
-//                .setMessage(R.string.bluetooth_off_dialog_message)
-//                .setPositiveButton(R.string.bluetooth_off_dialog_ok, (dialog, which) -> {
-//                    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-//                    openBluetoothActivityResult.launch(enableBtIntent);
-//                })
-//                .setNegativeButton(R.string.bluetooth_off_dialog_cancel, (dialog, which) -> noBluetoothExitDialog.show());
-//        noBluetoothExitDialog = new MaterialAlertDialogBuilder(mContext)
-//                .setCancelable(false)
-//                .setTitle(R.string.no_bluetooth_exit_dialog_title)
-//                .setMessage(R.string.no_bluetooth_exit_dialog_message)
-//                .setPositiveButton(R.string.no_bluetooth_exit_dialog_ok, (dialog, which) -> requestOpenBluetooth())
-//                .setNegativeButton(R.string.no_bluetooth_exit_dialog_cancel, (dialog, which) -> finish());
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_toolbar_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_settings: {
+                Toast.makeText(getApplicationContext(), "hhh", Toast.LENGTH_SHORT).show();
+                break;
+            }
+            case R.id.menu_item_about: {
+                Intent intent = new Intent(MainActivity.this, AboutActivity.class);
+                startActivity(intent);
+                break;
+            }
+            default: {
+                break;
+            }
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void initServices() {
-        // register bluetooth receiver
-        BluetoothValueReceiver bluetoothValueReceiver = new BluetoothValueReceiver();
-        IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-        registerReceiver(bluetoothValueReceiver, filter);
-        bluetoothValueReceiver.setOnStateChangeListener(new OnStateChangeListener() {
-            @Override
-            public void onBluetoothOff() {
-                requestOpenBluetooth();
-            }
-
-            @Override
-            public void onBluetoothOn() {
-            }
-
-            @Override
-            public void onBluetoothTurningOn() {
-            }
-
-            @Override
-            public void onBluetoothTurningOff() {
-            }
-        });
         serialService = new SerialService();
         connect();
     }
@@ -166,21 +127,32 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
     private void initView() {
         MaterialToolbar toolbar = findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
+
+        bluetoothNotConnectedWarning = findViewById(R.id.main_not_connected);
+
+        btnOpenDoor = findViewById(R.id.main_btn_open_door);
+        btnOpenDoor.setOnClickListener(v -> openDoor());
     }
 
-    private void applyClickAction() {
-
+    private void openDoor() {
+        send("FBTjRVZI", false);
     }
 
     // send data to bluetooth serial port
-    private void send(String data) {
+    private void send(String data, boolean isHexString) {
         if (connected != Connected.True) {
             // NOT CONNECTED
             Toast.makeText(getApplicationContext(), "not connected", Toast.LENGTH_SHORT).show();
             return;
         }
+        byte[] sendData;
+        if (isHexString) {
+            sendData = TextUtil.toByteArray(data);
+        } else {
+            sendData = (data + "\r\n").getBytes();
+        }
         try {
-            serialService.write(TextUtil.toByteArray(data));
+            serialService.write(sendData);
         } catch (Exception e) {
             onSerialIoError(e);
         }
@@ -195,7 +167,7 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
     private void connect() {
         try {
             BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-            deviceAddress = "00:02:0A:01:A5:47";
+            deviceAddress = "84:CC:A8:2C:2B:5E";
             BluetoothDevice device = bluetoothAdapter.getRemoteDevice(deviceAddress);
             connected = Connected.Pending;
             SerialSocket socket = new SerialSocket(getApplicationContext(), device);
@@ -211,15 +183,15 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
         serialService.disconnect();
     }
 
-    // request to open bluetooth
-    private void requestOpenBluetooth() {
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (bluetoothAdapter == null) {
-            // Device doesn't support Bluetooth
-//            noBluetoothSupportDialog.show();
-        } else if (!bluetoothAdapter.isEnabled()) {
-            // User didn't open Bluetooth
-//            bluetoothOffDialog.show();
-        }
+    // access sp and get saved device mac address
+    private String getConnectedDeviceAddress() {
+        // todo from sp
+        return "84:CC:A8:2C:2B:5E";
+    }
+
+    private enum Connected {
+        False,
+        Pending,
+        True
     }
 }

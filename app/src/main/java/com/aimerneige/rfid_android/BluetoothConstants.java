@@ -12,5 +12,5 @@ public class BluetoothConstants {
     // values have to be unique within each app
     public static final int NOTIFY_MANAGER_START_FOREGROUND_SERVICE = 1001;
 
-    public static final String TEST_DEVICE_ADDRESS = "00:02:0A:01:A5:47";
+    public static final String TEST_DEVICE_ADDRESS = "84:CC:A8:2C:2B:5E";
 }
