@@ -9,7 +9,7 @@ public class TextUtil {
      * @param byteArray byte 数组
      * @return 十六进制字符串
      */
-    public static String toHexString(final byte[] byteArray) {
+    public static String byteArrayToHexString(final byte[] byteArray) {
         char[] hexChars = new char[byteArray.length * 2];
         for (int j = 0; j < byteArray.length; j++) {
             int v = byteArray[j] & 0xFF;
@@ -25,7 +25,7 @@ public class TextUtil {
      * @param hexString 十六进制字符串
      * @return byte 数组
      */
-    public static byte[] toByteArray(final String hexString) {
+    public static byte[] hexStringToByteArray(final String hexString) {
         int len = hexString.length();
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {

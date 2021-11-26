@@ -15,8 +15,12 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
+
+import java.util.concurrent.Executor;
 
 public class MainActivity extends BaseActivity implements ServiceConnection, SerialListener {
 
@@ -26,6 +30,11 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
     private Connected connected = Connected.False;
     private LinearLayout btnOpenDoor;
     private LinearLayout bluetoothNotConnectedWarning;
+
+    private Executor executor;
+    private BiometricPrompt biometricPrompt;
+    private BiometricPrompt.PromptInfo promptInfo;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,8 +129,43 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
     }
 
     private void initServices() {
+        // bluetooth serial
         serialService = new SerialService();
         connect();
+
+        // fingerprint
+//        executor = ContextCompat.getMainExecutor(this);
+//        biometricPrompt = new BiometricPrompt(MainActivity.this, executor, new BiometricPrompt.AuthenticationCallback() {
+//
+//            @Override
+//            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+//                super.onAuthenticationError(errorCode, errString);
+//                Toast.makeText(getApplicationContext(),
+//                        "Authentication error: " + errString, Toast.LENGTH_SHORT)
+//                        .show();
+//            }
+//
+//            @Override
+//            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+//                super.onAuthenticationSucceeded(result);
+//                Toast.makeText(getApplicationContext(),
+//                        "Authentication succeeded!", Toast.LENGTH_SHORT).show();
+//                openDoor();
+//            }
+//
+//            @Override
+//            public void onAuthenticationFailed() {
+//                super.onAuthenticationFailed();
+//                Toast.makeText(getApplicationContext(), "Authentication failed",
+//                        Toast.LENGTH_SHORT)
+//                        .show();
+//            }
+//        });
+//        promptInfo = new BiometricPrompt.PromptInfo.Builder()
+//                .setTitle("指纹认证")
+//                .setSubtitle("使用指纹认证确认开门")
+//                .setNegativeButtonText("使用密码")
+//                .build();
     }
 
     private void initView() {
@@ -132,6 +176,7 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
 
         btnOpenDoor = findViewById(R.id.main_btn_open_door);
         btnOpenDoor.setOnClickListener(v -> openDoor());
+//        btnOpenDoor.setOnClickListener(v -> biometricPrompt.authenticate(promptInfo));
     }
 
     private void openDoor() {
@@ -147,7 +192,7 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
         }
         byte[] sendData;
         if (isHexString) {
-            sendData = TextUtil.toByteArray(data);
+            sendData = TextUtil.hexStringToByteArray(data);
         } else {
             sendData = (data + "\r\n").getBytes();
         }
@@ -160,7 +205,7 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
 
     // receive data from serial
     private void receive(byte[] data) {
-        Log.d(LOG_TAG, TextUtil.toHexString(data));
+        Log.d(LOG_TAG, TextUtil.byteArrayToHexString(data));
     }
 
     // connect to bluetooth serial
