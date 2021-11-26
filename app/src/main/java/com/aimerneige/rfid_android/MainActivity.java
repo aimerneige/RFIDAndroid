@@ -16,7 +16,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.biometric.BiometricPrompt;
-import androidx.core.content.ContextCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
 
@@ -79,7 +78,6 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
     public void onSerialConnect() {
         String msg = "Serial Connected.";
         Log.d(LOG_TAG, msg);
-        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
         connected = Connected.True;
         bluetoothNotConnectedWarning.setVisibility(View.GONE);
     }
@@ -113,7 +111,8 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_settings: {
-                Toast.makeText(getApplicationContext(), "hhh", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
                 break;
             }
             case R.id.menu_item_about: {
@@ -187,7 +186,7 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
     private void send(String data, boolean isHexString) {
         if (connected != Connected.True) {
             // NOT CONNECTED
-            Toast.makeText(getApplicationContext(), "not connected", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "蓝牙未连接", Toast.LENGTH_SHORT).show();
             return;
         }
         byte[] sendData;

@@ -3,10 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/menu_item_settings"
-        android:title="@string/menu_item_settings_title"
+        android:title="设置"
         app:showAsAction="never" />
     <item
         android:id="@+id/menu_item_about"
-        android:title="@string/menu_item_about_title"
+        android:title="关于"
         app:showAsAction="never" />
 </menu>

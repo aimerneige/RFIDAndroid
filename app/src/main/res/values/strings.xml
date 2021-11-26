@@ -1,16 +1,3 @@
 <resources>
     <string name="app_name">RFID-Android</string>
-    <string name="no_bluetooth_support_dialog_title">Fail to Access Bluetooth.</string>
-    <string name="no_bluetooth_support_dialog_message">It seems that your device doesn\'t support Bluetooth. Optometry will exit.</string>
-    <string name="no_bluetooth_support_dialog_ok">OK</string>
-    <string name="bluetooth_off_dialog_title">Bluetooth Is Off.</string>
-    <string name="bluetooth_off_dialog_message">Please open bluetooth to use Optometry.</string>
-    <string name="bluetooth_off_dialog_ok">OK</string>
-    <string name="bluetooth_off_dialog_cancel">Cancel</string>
-    <string name="no_bluetooth_exit_dialog_title">Optometry Will Exit.</string>
-    <string name="no_bluetooth_exit_dialog_message">Optometry can\'t run without bluetooth. Click OK to try again or Cancel to exit.</string>
-    <string name="no_bluetooth_exit_dialog_ok">OK</string>
-    <string name="no_bluetooth_exit_dialog_cancel">Cancel</string>
-    <string name="menu_item_settings_title">Settings</string>
-    <string name="menu_item_about_title">About</string>
 </resources>
