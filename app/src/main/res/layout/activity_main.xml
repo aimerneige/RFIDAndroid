@@ -139,11 +139,14 @@
                 android:orientation="horizontal">
 
                 <LinearLayout
+                    android:id="@+id/main_btn_temperature"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="4dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_trans_border_ripple"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:orientation="horizontal"
                     android:paddingLeft="0dp"
                     android:paddingTop="18dp"
@@ -180,7 +183,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:paddingTop="2dp"
-                            android:text="32℃"
+                            android:text="N/A"
                             android:textColor="@color/secondTextColor"
                             android:textSize="12sp" />
 
@@ -189,11 +192,14 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/main_btn_humidity"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_trans_border_ripple"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:orientation="horizontal"
                     android:paddingLeft="0dp"
                     android:paddingTop="18dp"
@@ -230,7 +236,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:paddingTop="2dp"
-                            android:text="24%"
+                            android:text="N/A"
                             android:textColor="@color/secondTextColor"
                             android:textSize="12sp" />
 
@@ -262,7 +268,7 @@
                     android:layout_marginRight="16dp"
                     android:layout_marginBottom="16dp"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/ic_lock_open"
+                    android:src="@drawable/ic_wifi"
                     app:tint="@color/colorPrimary" />
 
                 <LinearLayout

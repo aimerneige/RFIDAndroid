@@ -1,5 +1,6 @@
 package com.aimerneige.rfid_android;
 
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
@@ -12,28 +13,33 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.biometric.BiometricPrompt;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.gson.Gson;
 
-import java.util.concurrent.Executor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class MainActivity extends BaseActivity implements ServiceConnection, SerialListener {
 
     private final String LOG_TAG = "MainActivity";
+    private final String thServerUrl = "http://101.34.24.60:5000/getTH";
     private String deviceAddress; // MAC address
     private SerialService serialService;
     private Connected connected = Connected.False;
-    private LinearLayout btnOpenDoor;
     private LinearLayout bluetoothNotConnectedWarning;
-
-    private Executor executor;
-    private BiometricPrompt biometricPrompt;
-    private BiometricPrompt.PromptInfo promptInfo;
-
+    private LinearLayout btnOpenDoor;
+    private LinearLayout btnTemperature;
+    private LinearLayout btnHumidity;
+    private TextView textTemperature;
+    private TextView textHumidity;
+    private OkHttpClient client;
+    private Request thRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +47,7 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
         setContentView(R.layout.activity_main);
         initServices();
         initView();
+        updateView();
     }
 
     @Override
@@ -132,39 +139,13 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
         serialService = new SerialService();
         connect();
 
-        // fingerprint
-//        executor = ContextCompat.getMainExecutor(this);
-//        biometricPrompt = new BiometricPrompt(MainActivity.this, executor, new BiometricPrompt.AuthenticationCallback() {
-//
-//            @Override
-//            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
-//                super.onAuthenticationError(errorCode, errString);
-//                Toast.makeText(getApplicationContext(),
-//                        "Authentication error: " + errString, Toast.LENGTH_SHORT)
-//                        .show();
-//            }
-//
-//            @Override
-//            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
-//                super.onAuthenticationSucceeded(result);
-//                Toast.makeText(getApplicationContext(),
-//                        "Authentication succeeded!", Toast.LENGTH_SHORT).show();
-//                openDoor();
-//            }
-//
-//            @Override
-//            public void onAuthenticationFailed() {
-//                super.onAuthenticationFailed();
-//                Toast.makeText(getApplicationContext(), "Authentication failed",
-//                        Toast.LENGTH_SHORT)
-//                        .show();
-//            }
-//        });
-//        promptInfo = new BiometricPrompt.PromptInfo.Builder()
-//                .setTitle("指纹认证")
-//                .setSubtitle("使用指纹认证确认开门")
-//                .setNegativeButtonText("使用密码")
-//                .build();
+        // okhttp client
+        client = new OkHttpClient();
+
+        // okhttp request
+        thRequest = new Request.Builder()
+                .url(thServerUrl)
+                .build();
     }
 
     private void initView() {
@@ -172,14 +153,65 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
         setSupportActionBar(toolbar);
 
         bluetoothNotConnectedWarning = findViewById(R.id.main_not_connected);
+        bluetoothNotConnectedWarning.setOnClickListener(v -> retryConnect());
 
         btnOpenDoor = findViewById(R.id.main_btn_open_door);
         btnOpenDoor.setOnClickListener(v -> openDoor());
-//        btnOpenDoor.setOnClickListener(v -> biometricPrompt.authenticate(promptInfo));
+
+        textTemperature = findViewById(R.id.text_temperature);
+        btnTemperature = findViewById(R.id.main_btn_temperature);
+        btnTemperature.setOnClickListener(v -> updateTemperatureAndHumidity());
+
+        textHumidity = findViewById(R.id.text_humidity);
+        btnHumidity = findViewById(R.id.main_btn_humidity);
+        btnHumidity.setOnClickListener(v -> updateTemperatureAndHumidity());
+    }
+
+    private void updateView() {
+        updateTemperatureAndHumidity();
+    }
+
+    private void retryConnect() {
+        Toast.makeText(getApplicationContext(), "正在尝试重新连接", Toast.LENGTH_SHORT).show();
+        connect();
     }
 
     private void openDoor() {
-        send("FBTjRVZI", false);
+        if (connected != Connected.True) {
+            new AlertDialog.Builder(this)
+                    .setTitle("蓝牙未连接")
+                    .setMessage("无法建立串口通信，请检查蓝牙设置")
+                    .setCancelable(false)
+                    .setPositiveButton("确定", null)
+                    .show();
+        } else {
+            send("FBTjRVZI", false);
+        }
+    }
+
+    private void updateTemperatureAndHumidity() {
+        new Thread(() -> {
+            try {
+                Response response = client.newCall(thRequest).execute();
+                String responseData = response.body().string();
+                Gson gson = new Gson();
+                THJsonData thJsonData = gson.fromJson(responseData, THJsonData.class);
+                if (thJsonData.data.size() > 0) {
+                    double t = thJsonData.data.get(0).T;
+                    double h = thJsonData.data.get(0).H;
+                    updateTHView(t, h);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    private void updateTHView(double t, double h) {
+        runOnUiThread(() -> {
+            textTemperature.setText(t + "℃");
+            textHumidity.setText(h + "%");
+        });
     }
 
     // send data to bluetooth serial port
@@ -211,7 +243,7 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
     private void connect() {
         try {
             BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-            deviceAddress = "84:CC:A8:2C:2B:5E";
+            deviceAddress = "84:CC:A8:2C:2B:5E"; // TODO
             BluetoothDevice device = bluetoothAdapter.getRemoteDevice(deviceAddress);
             connected = Connected.Pending;
             SerialSocket socket = new SerialSocket(getApplicationContext(), device);
@@ -227,7 +259,7 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
         serialService.disconnect();
     }
 
-    // access sp and get saved device mac address
+    // TODO access sp and get saved device mac address
     private String getConnectedDeviceAddress() {
         // todo from sp
         return "84:CC:A8:2C:2B:5E";

@@ -9,13 +9,18 @@
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" /> <!-- Use ACCESS_FINE_LOCATION instead if targets Android 9 or higher -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
+    <!-- Permission For Internet -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.RFIDAndroid">
+        android:theme="@style/Theme.RFIDAndroid"
+        android:usesCleartextTraffic="true">
         <activity
             android:name=".SettingsActivity"
             android:exported="false" />
