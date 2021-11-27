@@ -9,6 +9,7 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.Gson;
 
 import okhttp3.OkHttpClient;
@@ -36,6 +38,7 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
     private LinearLayout btnOpenDoor;
     private LinearLayout btnTemperature;
     private LinearLayout btnHumidity;
+    private LinearLayout btnChangeWifiData;
     private TextView textTemperature;
     private TextView textHumidity;
     private OkHttpClient client;
@@ -165,6 +168,9 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
         textHumidity = findViewById(R.id.text_humidity);
         btnHumidity = findViewById(R.id.main_btn_humidity);
         btnHumidity.setOnClickListener(v -> updateTemperatureAndHumidity());
+
+        btnChangeWifiData = findViewById(R.id.main_btn_change_wifi);
+        btnChangeWifiData.setOnClickListener(v -> changeWifiData());
     }
 
     private void updateView() {
@@ -177,15 +183,13 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
     }
 
     private void openDoor() {
-        if (connected != Connected.True) {
+        if (send("FBTjRVZI", false)) {
             new AlertDialog.Builder(this)
-                    .setTitle("蓝牙未连接")
-                    .setMessage("无法建立串口通信，请检查蓝牙设置")
+                    .setTitle("指令发送成功")
+                    .setMessage("已成功发送开门指令")
                     .setCancelable(false)
                     .setPositiveButton("确定", null)
                     .show();
-        } else {
-            send("FBTjRVZI", false);
         }
     }
 
@@ -214,12 +218,39 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
         });
     }
 
+    private void changeWifiData() {
+        LayoutInflater inflater = getLayoutInflater();
+        View alertLayout = inflater.inflate(R.layout.dialog_change_wifi_info, null);
+        final TextInputEditText etSsid = alertLayout.findViewById(R.id.tiet_ssid);
+        final TextInputEditText etPass = alertLayout.findViewById(R.id.tiet_password);
+
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setTitle("设置 WiFi 信息");
+        alert.setView(alertLayout);
+        alert.setCancelable(false);
+        alert.setNegativeButton("取消", (dialog, which) -> dialog.cancel());
+
+        alert.setPositiveButton("确定", (dialog, which) -> {
+            String ssid = etSsid.getText().toString();
+            String pass = etPass.getText().toString();
+            String data = String.format("WIFI:{\"ssid\":\"%s\",\"psw\":\"%s\"}", ssid, pass);
+            send(data, false);
+        });
+        AlertDialog dialog = alert.create();
+        dialog.show();
+    }
+
+
     // send data to bluetooth serial port
-    private void send(String data, boolean isHexString) {
+    private boolean send(String data, boolean isHexString) {
         if (connected != Connected.True) {
-            // NOT CONNECTED
-            Toast.makeText(getApplicationContext(), "蓝牙未连接", Toast.LENGTH_SHORT).show();
-            return;
+            new AlertDialog.Builder(this)
+                    .setTitle("蓝牙未连接")
+                    .setMessage("无法建立串口通信，请检查蓝牙设置")
+                    .setCancelable(false)
+                    .setPositiveButton("确定", null)
+                    .show();
+            return false;
         }
         byte[] sendData;
         if (isHexString) {
@@ -229,8 +260,10 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
         }
         try {
             serialService.write(sendData);
+            return true;
         } catch (Exception e) {
             onSerialIoError(e);
+            return false;
         }
     }
 
