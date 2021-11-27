@@ -290,6 +290,7 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
     private void disconnect() {
         connected = Connected.False;
         serialService.disconnect();
+        bluetoothNotConnectedWarning.setVisibility(View.VISIBLE);
     }
 
     // TODO access sp and get saved device mac address
