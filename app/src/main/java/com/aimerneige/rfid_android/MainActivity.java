@@ -183,7 +183,7 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
     }
 
     private void openDoor() {
-        if (send("FBTjRVZI", false)) {
+        if (send(SPUtils.getSavedPassword(getApplicationContext()), false)) {
             new AlertDialog.Builder(this)
                     .setTitle("指令发送成功")
                     .setMessage("已成功发送开门指令")
@@ -288,7 +288,7 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
     private void connect() {
         try {
             BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-            deviceAddress = "84:CC:A8:2C:2B:5E"; // TODO
+            deviceAddress = SPUtils.getConnectedDevice(getApplicationContext());
             BluetoothDevice device = bluetoothAdapter.getRemoteDevice(deviceAddress);
             connected = Connected.Pending;
             SerialSocket socket = new SerialSocket(getApplicationContext(), device);
@@ -303,12 +303,6 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
         connected = Connected.False;
         serialService.disconnect();
         bluetoothNotConnectedWarning.setVisibility(View.VISIBLE);
-    }
-
-    // TODO access sp and get saved device mac address
-    private String getConnectedDeviceAddress() {
-        // todo from sp
-        return "84:CC:A8:2C:2B:5E";
     }
 
     private enum Connected {
