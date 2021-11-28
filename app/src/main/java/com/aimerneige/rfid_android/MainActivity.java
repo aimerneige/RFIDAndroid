@@ -39,6 +39,7 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
     private LinearLayout btnTemperature;
     private LinearLayout btnHumidity;
     private LinearLayout btnChangeWifiData;
+    private LinearLayout btnChangePswData;
     private TextView textTemperature;
     private TextView textHumidity;
     private OkHttpClient client;
@@ -171,6 +172,9 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
 
         btnChangeWifiData = findViewById(R.id.main_btn_change_wifi);
         btnChangeWifiData.setOnClickListener(v -> changeWifiData());
+
+        btnChangePswData = findViewById(R.id.main_btn_change_psw);
+        btnChangePswData.setOnClickListener(v -> changePswData());
     }
 
     private void updateView() {
@@ -252,6 +256,54 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
         dialog.show();
     }
 
+    private void changePswData() {
+        LayoutInflater inflater = getLayoutInflater();
+        View alertLayout = inflater.inflate(R.layout.dialog_change_password, null);
+        final TextInputEditText etOld = alertLayout.findViewById(R.id.tiet_old);
+        final TextInputEditText etNew = alertLayout.findViewById(R.id.tiet_new);
+        final TextInputEditText etPswAgain = alertLayout.findViewById(R.id.tiet_psw_again);
+
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setTitle("设置开门密码");
+        alert.setView(alertLayout);
+        alert.setCancelable(false);
+        alert.setNegativeButton("取消", (dialog, which) -> dialog.cancel());
+
+        alert.setPositiveButton("确定", (dialog, which) -> {
+            String old;
+            if (etOld.getText() == null || etOld.getText().toString().isEmpty()) {
+                Toast.makeText(getApplicationContext(), "请输入旧密码", Toast.LENGTH_LONG).show();
+                return;
+            } else {
+                old = etOld.getText().toString();
+            }
+            String pass;
+            if (etNew.getText() == null || etNew.getText().toString().isEmpty()) {
+                Toast.makeText(getApplicationContext(), "请输入新密码", Toast.LENGTH_LONG).show();
+                return;
+            } else {
+                pass = etNew.getText().toString();
+            }
+            String passAgain;
+            if (etPswAgain.getText() == null || etPswAgain.getText().toString().isEmpty()) {
+                Toast.makeText(getApplicationContext(), "请再次输入新密码", Toast.LENGTH_LONG).show();
+                return;
+            } else {
+                passAgain = etPswAgain.getText().toString();
+            }
+            if (!pass.equals(passAgain)) {
+                Toast.makeText(getApplicationContext(), "俩次输入的密码不相同", Toast.LENGTH_LONG).show();
+            } else {
+                String data = String.format("PWD:{\"oldPwd\":\"%s\",\"newPwd\":\"%s\"}", old, pass);
+//                String data = String.format("PWD:{\"newPwd\":\"%s\"}", pass);
+                send(data, false);
+                SPUtils.savePassword(getApplicationContext(), pass);
+            }
+        });
+
+        AlertDialog dialog = alert.create();
+        dialog.show();
+    }
 
     // send data to bluetooth serial port
     private boolean send(String data, boolean isHexString) {
