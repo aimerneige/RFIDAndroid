@@ -221,8 +221,8 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
     private void changeWifiData() {
         LayoutInflater inflater = getLayoutInflater();
         View alertLayout = inflater.inflate(R.layout.dialog_change_wifi_info, null);
-        final TextInputEditText etSsid = alertLayout.findViewById(R.id.tiet_ssid);
-        final TextInputEditText etPass = alertLayout.findViewById(R.id.tiet_password);
+        final TextInputEditText etSsid = alertLayout.findViewById(R.id.tiet_wifi_ssid);
+        final TextInputEditText etPass = alertLayout.findViewById(R.id.tiet_wifi_psw);
 
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle("设置 WiFi 信息");
@@ -231,8 +231,20 @@ public class MainActivity extends BaseActivity implements ServiceConnection, Ser
         alert.setNegativeButton("取消", (dialog, which) -> dialog.cancel());
 
         alert.setPositiveButton("确定", (dialog, which) -> {
-            String ssid = etSsid.getText().toString();
-            String pass = etPass.getText().toString();
+            String ssid;
+            if (etSsid.getText() == null || etSsid.getText().toString().isEmpty()) {
+                Toast.makeText(getApplicationContext(), "请输入ssid", Toast.LENGTH_LONG).show();
+                return;
+            } else {
+                ssid = etSsid.getText().toString();
+            }
+            String pass;
+            if (etPass.getText() == null || etPass.getText().toString().isEmpty()) {
+                Toast.makeText(getApplicationContext(), "请输入密码", Toast.LENGTH_LONG).show();
+                return;
+            } else {
+                pass = etPass.getText().toString();
+            }
             String data = String.format("WIFI:{\"ssid\":\"%s\",\"psw\":\"%s\"}", ssid, pass);
             send(data, false);
         });
