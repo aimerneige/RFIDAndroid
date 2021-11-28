@@ -13,7 +13,9 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private LinearLayout btnHumidity;
     private LinearLayout btnChangeWifiData;
     private LinearLayout btnChangePswData;
+    private LinearLayout btnSetLockMode;
     private TextView textTemperature;
     private TextView textHumidity;
     private OkHttpClient client;
@@ -163,6 +166,9 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         btnOpenDoor = findViewById(R.id.main_btn_open_door);
         btnOpenDoor.setOnClickListener(v -> openDoor());
 
+        btnSetLockMode = findViewById(R.id.main_btn_set_door_mode);
+        btnSetLockMode.setOnClickListener(v -> setLockMode());
+
         textTemperature = findViewById(R.id.text_temperature);
         btnTemperature = findViewById(R.id.main_btn_temperature);
         btnTemperature.setOnClickListener(v -> updateTemperatureAndHumidity());
@@ -196,6 +202,52 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                     .setPositiveButton("确定", null)
                     .show();
         }
+    }
+
+
+    private void setLockMode() {
+        LayoutInflater inflater = getLayoutInflater();
+        View alertLayout = inflater.inflate(R.layout.dialog_change_lock_mode, null);
+        final Spinner spinner = alertLayout.findViewById(R.id.lock_mode_spinner);
+
+        final ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getApplicationContext(),
+                R.array.lock_mode, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setTitle("设置门锁模式");
+        alert.setView(alertLayout);
+        alert.setCancelable(false);
+        alert.setNegativeButton("取消", (dialog, which) -> dialog.cancel());
+
+        alert.setPositiveButton("确定", (dialog, which) -> {
+            String data = spinner.getSelectedItem().toString();
+            String msg = "";
+            switch (data) {
+                case "一开一关": {
+                    msg = String.format("MODE:{\"pwd\":\"%s\",\"mode\":true}",
+                            SPUtils.getSavedPassword(getApplicationContext()));
+                    break;
+                }
+                case "常开": {
+                    msg = String.format("MODE:{\"pwd\":\"%s\",\"mode\":false}",
+                            SPUtils.getSavedPassword(getApplicationContext()));
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+            if (msg.equals("")) {
+                Toast.makeText(getApplicationContext(), "请选择正确的模式", Toast.LENGTH_LONG).show();
+            } else {
+                send(msg, false);
+            }
+        });
+
+        AlertDialog dialog = alert.create();
+        dialog.show();
     }
 
     private void updateTemperatureAndHumidity() {

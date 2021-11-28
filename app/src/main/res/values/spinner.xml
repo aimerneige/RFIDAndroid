@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="lock_mode">
+        <item>一开一关</item>
+        <item>常开</item>
+    </string-array>
+
+</resources>
