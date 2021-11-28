@@ -47,7 +47,7 @@ public class SerialSocket implements Runnable {
 
     public void connect(SerialListener listener) throws IOException {
         this.listener = listener;
-        context.registerReceiver(disconnectBroadcastReceiver, new IntentFilter(BluetoothConstants.INTENT_ACTION_DISCONNECT));
+        context.registerReceiver(disconnectBroadcastReceiver, new IntentFilter(BuildConfig.APPLICATION_ID + ".Disconnect"));
         Executors.newSingleThreadExecutor().submit(this);
     }
 
