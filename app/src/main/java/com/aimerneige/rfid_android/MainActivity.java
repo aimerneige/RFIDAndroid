@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         btnOpenDoor = findViewById(R.id.main_btn_open_door);
         btnOpenDoor.setOnClickListener(v -> openDoor());
 
-        btnSetLockMode = findViewById(R.id.main_btn_set_door_mode);
+        btnSetLockMode = findViewById(R.id.main_btn_set_lock_mode);
         btnSetLockMode.setOnClickListener(v -> setLockMode());
 
         textTemperature = findViewById(R.id.text_temperature);

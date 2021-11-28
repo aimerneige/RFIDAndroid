@@ -133,7 +133,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/main_btn_set_door_mode"
+                android:id="@+id/main_btn_set_lock_mode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
