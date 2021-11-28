@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputEditText;
@@ -27,7 +28,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class MainActivity extends BaseActivity implements ServiceConnection, SerialListener {
+public class MainActivity extends AppCompatActivity implements ServiceConnection, SerialListener {
 
     private final String LOG_TAG = "MainActivity";
     private final String thServerUrl = "http://101.34.24.60:5000/getTH";
